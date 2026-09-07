@@ -1,0 +1,17 @@
+{
+  "name": "recipe-meal-planner",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Recipe & Meal Planner - vanilla JS revision project with an AI meal-plan generator",
+  "scripts": {
+    "start": "node --env-file-if-exists=.env server.js",
+    "dev": "node --watch --env-file-if-exists=.env server.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

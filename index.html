@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recipe &amp; Meal Planner</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <header class="topbar">
+    <h1 class="logo">🍲 Meal<span>Planner</span></h1>
+
+    <nav class="tabs" id="tabs">
+      <button class="tab is-active" data-view="search">Search</button>
+      <button class="tab" data-view="favorites">Favorites <span class="badge" id="favCount">0</span></button>
+      <button class="tab" data-view="planner">Weekly Plan</button>
+      <button class="tab" data-view="shopping">Shopping List</button>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <!-- ===================== SEARCH VIEW ===================== -->
+    <section class="view is-active" id="view-search">
+      <form class="search-bar" id="searchForm">
+        <input type="search" id="searchInput" placeholder="Search recipes… (e.g. chicken, pasta)" autocomplete="off" />
+        <button type="submit">Search</button>
+        <button type="button" id="randomBtn" class="ghost">🎲 Surprise me</button>
+      </form>
+
+      <div class="filters">
+        <label>
+          Ingredient filter
+          <input type="text" id="ingredientInput" placeholder="e.g. egg, rice" />
+        </label>
+        <label>
+          Category
+          <select id="categorySelect"><option value="">All categories</option></select>
+        </label>
+        <label>
+          Area
+          <select id="areaSelect"><option value="">All areas</option></select>
+        </label>
+        <label>
+          Sort
+          <select id="sortSelect">
+            <option value="none">Default</option>
+            <option value="az">Name A → Z</option>
+            <option value="za">Name Z → A</option>
+          </select>
+        </label>
+        <button type="button" id="clearFilters" class="ghost">Clear</button>
+      </div>
+
+      <p class="status" id="searchStatus">Type something and hit Search 👆</p>
+      <div class="grid" id="resultsGrid"></div>
+    </section>
+
+    <!-- ===================== FAVORITES VIEW ===================== -->
+    <section class="view" id="view-favorites">
+      <h2>❤️ Favorites</h2>
+      <p class="status" id="favStatus"></p>
+      <div class="grid" id="favoritesGrid"></div>
+    </section>
+
+    <!-- ===================== PLANNER VIEW ===================== -->
+    <section class="view" id="view-planner">
+      <div class="week-nav">
+        <button id="prevWeek" class="ghost">← Prev week</button>
+        <h2 id="weekLabel">Week</h2>
+        <button id="nextWeek" class="ghost">Next week →</button>
+        <button id="thisWeek" class="ghost">Today</button>
+        <button id="clearWeek" class="danger">Clear week</button>
+      </div>
+
+      <!-- ===== AI Meal Plan Generator ===== -->
+      <section class="ai-panel">
+        <div class="ai-head">
+          <h3>✨ AI Meal Plan</h3>
+          <button id="aiToggle" class="ghost">Open</button>
+        </div>
+
+        <div class="ai-body" id="aiBody" hidden>
+          <textarea id="aiPrompt" rows="2"
+            placeholder="e.g. high protein, no beef, budget friendly, 30 min se kam cooking"></textarea>
+
+          <div class="ai-opts">
+            <label>Days
+              <select id="aiDays">
+                <option>3</option><option>5</option><option selected>7</option>
+              </select>
+            </label>
+            <label>Meals / day
+              <select id="aiMeals">
+                <option value="1" selected>1 (dinner)</option>
+                <option value="2">2 (lunch + dinner)</option>
+                <option value="3">3 (all)</option>
+              </select>
+            </label>
+            <label>People
+              <select id="aiServings">
+                <option>1</option><option selected>2</option><option>4</option><option>6</option>
+              </select>
+            </label>
+            <label class="ai-check">
+              <input type="checkbox" id="aiClear"> Clear week first
+            </label>
+            <button id="aiGenerate">Generate plan</button>
+          </div>
+
+          <p class="status" id="aiStatus"></p>
+          <div id="aiResult"></div>
+        </div>
+      </section>
+
+      <p class="hint">
+        Tip: Search tab se recipe card ko drag karke yahan kisi din par drop karo 👇
+        (ya card ka <b>+ Plan</b> button use karo)
+      </p>
+
+      <div class="planner" id="plannerGrid"></div>
+
+      <div class="week-summary" id="weekSummary"></div>
+    </section>
+
+    <!-- ===================== SHOPPING VIEW ===================== -->
+    <section class="view" id="view-shopping">
+      <div class="shop-head">
+        <h2>🛒 Shopping List</h2>
+        <button id="buildList">Build from this week's plan</button>
+        <button id="clearBought" class="ghost">Remove bought</button>
+        <button id="copyList" class="ghost">Copy as text</button>
+      </div>
+      <p class="status" id="shopStatus"></p>
+      <ul class="shop-list" id="shoppingList"></ul>
+    </section>
+
+  </main>
+
+  <!-- ===================== RECIPE MODAL ===================== -->
+  <div class="modal" id="modal" hidden>
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-card" role="dialog" aria-modal="true">
+      <button class="modal-close" data-close aria-label="Close">✕</button>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" hidden></div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
