@@ -43,7 +43,9 @@ console se **rotate** kar do.
 | `js/ui.js` | Sirf DOM banata hai | template literals, fragments, XSS escaping |
 | `js/app.js` | Events → state → re-render | delegation, debounce, drag & drop |
 | `js/ai.js` | AI plan → real recipes se match | fetch POST, Promise.all, fallback chain, Set dedupe |
-| `server.js` | Static serve + AI proxy | Node ESM, express, env vars, server-side fetch |
+| `lib/meal-plan.js` | AI plan ka asli logic (shared) | pure functions, custom Error, validation |
+| `server.js` | Local dev server | Node ESM, express, static serve |
+| `api/meal-plan.js` | Vercel serverless function | file-based routing, req/res |
 
 **Golden rule:** data flow hamesha **api → state → ui**. UI kabhi seedha fetch nahi karti, aur state kabhi DOM ko nahi chhuti.
 
@@ -204,6 +206,53 @@ Searching **parallel** hai (21 meals ~2 second me). Lekin *picking* **serial** h
 kyunki dedupe ke liye pata hona chahiye ke abhi tak kaunsi recipes le chuke hain.
 Ye samajhna zaroori hai: **jab har step pichle step ka result chahta ho tabhi serial karo.**
 
+## 🚀 Vercel par deploy
+
+Live: https://meal-planner-tau-roan.vercel.app
+
+### Vercel par server kaise chalta hai (aur kyun "Cannot GET /" aata hai)
+
+Vercel **long-running server nahi chalata**. `app.listen()` waha kabhi nahi chalta.
+Wo do cheezein karta hai:
+
+```
+repo ki baaki files   →  static hosting se serve  (index.html, css/, js/)
+api/ folder ki files  →  serverless functions     (request aaye to chale, phir band)
+```
+
+File ka naam hi URL banta hai: `api/meal-plan.js` → `/api/meal-plan`.
+
+Agar tum poora express server deploy karne ki koshish karo to Vercel usse chalata
+nahi, aur `/` par **"Cannot GET /"** aata hai — ye express ka apna 404 message hai,
+matlab express to zinda hai par static files uske bundle me hain hi nahi.
+
+### Isi liye logic `lib/` me hai
+
+```
+lib/meal-plan.js   ← asli kaam (Groq call, schema, validation)
+   ↑          ↑
+server.js   api/meal-plan.js
+(local)     (Vercel)
+```
+
+Ek hi logic, do transports. `lib/` me na express hai na `req`/`res` — sirf pure
+functions. Yehi **separation of concerns** hai, aur isi wajah se dono jagah
+behaviour bilkul same rehta hai.
+
+### Env variable set karna zaroori hai
+
+`.env` gitignored hai, isliye Vercel tak apne aap nahi pahunchti. Manually daalni parti hai:
+
+**Vercel Dashboard → Project → Settings → Environment Variables**
+
+| Name | Value |
+|---|---|
+| `GROQ_API_KEY` | `gsk_...` (apni key) |
+| `GROQ_MODEL` | `openai/gpt-oss-120b` |
+
+Save karke **Deployments → … → Redeploy** karna parta hai — env vars sirf naye
+build me aati hain, purana deployment khud update nahi hota.
+
 ## Khud try karne wale challenges
 
 1. **Servings ko planner me save karo** — abhi servings sirf modal me hai; use plan ke saath store karo aur shopping list us hisaab se banao.
@@ -232,3 +281,5 @@ Ye samajhna zaroori hai: **jab har step pichle step ka result chahta ho tabhi se
 | AI se recipe ID maangna | fake IDs, app crash | AI se naam lo, ID apne database se |
 | API key frontend JS me | koi bhi DevTools se chura le | server proxy + `.env` |
 | AI se "JSON dena" sirf prompt me kehna | kabhi kabhi toota JSON | `response_format` + `strict: true` |
+| Vercel par express server deploy karna | `Cannot GET /` | static root + `api/` serverless functions |
+| Vercel par env var set na karna | AI 500 deta hai | Settings → Environment Variables → **Redeploy** |
